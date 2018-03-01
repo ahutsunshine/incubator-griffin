@@ -31,10 +31,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -49,8 +46,8 @@ public class HiveMetaStoreServiceImpl implements HiveMetaStoreService {
     @Autowired
     private HiveMetaStoreClient client;
 
-    @Value("${hive.metastore.dbname}")
-    private String defaultDbName;
+    @Value("${hive.metastore.filter.dbname}")
+    private String filterDatabase;
 
     private ThreadPoolExecutor singleThreadExecutor;
 
@@ -101,10 +98,9 @@ public class HiveMetaStoreServiceImpl implements HiveMetaStoreService {
         return getTables(db);
     }
 
-
     @Override
     @Cacheable
-    public Map<String, List<Table>> getAllTable() {
+    public Map<String, List<Table>> getFilterTables() {
         Map<String, List<Table>> results = new HashMap<>();
         Iterable<String> dbs;
         // if hive.metastore.uris in application.properties configs wrong, client will be injected failure and will be null.
@@ -112,12 +108,12 @@ public class HiveMetaStoreServiceImpl implements HiveMetaStoreService {
             LOGGER.warn("Hive client is null. Please check your hive config.");
             return results;
         }
-        dbs = getAllDatabases();
-        if (dbs == null) {
-            return results;
-        }
-        for (String db : dbs) {
-            results.put(db, getTables(db));
+        if (StringUtils.isEmpty(filterDatabase)) {
+            dbs = getAllDatabases();
+            results = getAllTables(dbs);
+        } else {
+            String[] filterDbs = filterDatabase.split(",");
+            results = getAllTables(Arrays.asList(filterDbs));
         }
         return results;
     }
@@ -141,6 +137,17 @@ public class HiveMetaStoreServiceImpl implements HiveMetaStoreService {
     }
 
 
+    private Map<String, List<Table>> getAllTables(Iterable<String> dbs) {
+        Map<String, List<Table>> results = new HashMap<>();
+        if (dbs == null) {
+            return results;
+        }
+        for (String db : dbs) {
+            results.put(db, getTables(db));
+        }
+        return results;
+    }
+
     private List<Table> getTables(String db) {
         String useDbName = getUseDbName(db);
         List<Table> allTables = new ArrayList<>();
@@ -162,8 +169,8 @@ public class HiveMetaStoreServiceImpl implements HiveMetaStoreService {
     }
 
     private String getUseDbName(String dbName) {
-        if (!StringUtils.hasText(dbName)) {
-            return defaultDbName;
+        if (StringUtils.isEmpty(dbName)) {
+            return "default";
         } else {
             return dbName;
         }

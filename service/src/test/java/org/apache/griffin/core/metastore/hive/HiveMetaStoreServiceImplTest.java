@@ -119,7 +119,7 @@ public class HiveMetaStoreServiceImplTest {
         given(client.getAllDatabases()).willReturn(databases);
         given(client.getAllTables(databases.iterator().next())).willReturn(Arrays.asList(tableName));
         given(client.getTable(useDbName, tableName)).willReturn(new Table());
-        assertEquals(service.getAllTable().size(), 1);
+        assertEquals(service.getFilterTables().size(), 1);
     }
 
     @Test
@@ -129,14 +129,14 @@ public class HiveMetaStoreServiceImplTest {
         given(client.getAllDatabases()).willReturn(databases);
         given(client.getAllTables(useDbName)).willThrow(MetaException.class);
         doNothing().when(client).reconnect();
-        assertEquals(service.getAllTable().get(useDbName).size(), 0);
+        assertEquals(service.getFilterTables().get(useDbName).size(), 0);
     }
 
     @Test
     public void testGetAllTableForMetaException2() throws TException {
         given(client.getAllDatabases()).willThrow(MetaException.class);
         doNothing().when(client).reconnect();
-        assertEquals(service.getAllTable().size(), 0);
+        assertEquals(service.getFilterTables().size(), 0);
     }
 
     @Test

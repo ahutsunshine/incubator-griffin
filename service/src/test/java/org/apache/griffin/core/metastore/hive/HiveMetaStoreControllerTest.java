@@ -89,7 +89,7 @@ public class HiveMetaStoreControllerTest {
     public void testGetAllTables() throws Exception {
         Map<String, List<Table>> results = new HashMap<>();
         results.put("table", new ArrayList<>());
-        given(hiveMetaStoreService.getAllTable()).willReturn(results);
+        given(hiveMetaStoreService.getFilterTables()).willReturn(results);
 
         mockMvc.perform(get(URLHelper.API_VERSION_PATH + "/metadata/hive/dbs/tables"))
                 .andExpect(status().isOk())

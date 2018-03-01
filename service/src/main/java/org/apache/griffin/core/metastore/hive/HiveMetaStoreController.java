@@ -52,11 +52,10 @@ public class HiveMetaStoreController {
         return hiveMetaStoreService.getAllTable(dbName);
     }
 
-    @RequestMapping(value = "/dbs/tables", method = RequestMethod.GET)
-    public Map<String, List<Table>> getAllTables() {
-        return hiveMetaStoreService.getAllTable();
+    @RequestMapping(value = "/dbs/tables/filtration", method = RequestMethod.GET)
+    public Map<String, List<Table>> getFilterTables() {
+        return hiveMetaStoreService.getFilterTables();
     }
-
     @RequestMapping(value = "/table", method = RequestMethod.GET)
     public Table getTable(@RequestParam("db") String dbName, @RequestParam("table") String tableName) {
         return hiveMetaStoreService.getTable(dbName, tableName);

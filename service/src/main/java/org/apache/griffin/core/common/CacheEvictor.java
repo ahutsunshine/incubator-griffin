@@ -41,7 +41,7 @@ public class CacheEvictor {
     @CacheEvict(cacheNames = "hive", allEntries = true, beforeInvocation = true)
     public void evictHiveCache() {
         LOGGER.info("Evict hive cache");
-        hiveMetaStoreService.getAllTable();
+        hiveMetaStoreService.getFilterTables();
         LOGGER.info("After evict hive cache,automatically refresh hive tables cache.");
     }
 }

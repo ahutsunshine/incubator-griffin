@@ -32,7 +32,7 @@ public interface HiveMetaStoreService {
 
     List<Table> getAllTable(String db);
 
-    Map<String, List<Table>> getAllTable();
+    Map<String, List<Table>> getFilterTables();
 
     Table getTable(String dbName, String tableName);
 }

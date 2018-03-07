@@ -19,8 +19,15 @@ under the License.
 
 package org.apache.griffin.core.metastore.hive;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import org.apache.griffin.core.asset.entity.DataAsset;
+import org.apache.griffin.core.asset.entity.HiveDataAsset;
+import org.apache.griffin.core.asset.repo.DataAssetRepo;
+import org.apache.griffin.core.asset.repo.HiveDataAssetRepo;
+import org.apache.griffin.core.util.JsonUtil;
 import org.apache.hadoop.hive.metastore.HiveMetaStoreClient;
 import org.apache.hadoop.hive.metastore.api.MetaException;
+import org.apache.hadoop.hive.metastore.api.StorageDescriptor;
 import org.apache.hadoop.hive.metastore.api.Table;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,8 +36,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -42,9 +51,13 @@ import java.util.concurrent.TimeUnit;
 public class HiveMetaStoreServiceImpl implements HiveMetaStoreService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HiveMetaStoreService.class);
+    private static Long dataAssetLatestTime;
 
     @Autowired
     private HiveMetaStoreClient client;
+
+    @Autowired
+    private HiveDataAssetRepo hiveDataAssetRepo;
 
     @Value("${hive.metastore.filter.dbname}")
     private String filterDatabase;
@@ -100,7 +113,8 @@ public class HiveMetaStoreServiceImpl implements HiveMetaStoreService {
 
     @Override
     @Cacheable
-    public Map<String, List<Table>> getFilterTables() {
+    @Transactional
+    public Map<String, List<Table>> getFilterTables() throws IOException {
         Map<String, List<Table>> results = new HashMap<>();
         Iterable<String> dbs;
         // if hive.metastore.uris in application.properties configs wrong, client will be injected failure and will be null.
@@ -115,6 +129,9 @@ public class HiveMetaStoreServiceImpl implements HiveMetaStoreService {
             String[] filterDbs = filterDatabase.split(",");
             results = getAllTables(Arrays.asList(filterDbs));
         }
+        List<HiveDataAsset> assets = getDataAssetFromHive(results);
+        hiveDataAssetRepo.save(assets);
+        hiveDataAssetRepo.deleteByModifiedDate(dataAssetLatestTime);
         return results;
     }
 
@@ -136,6 +153,33 @@ public class HiveMetaStoreServiceImpl implements HiveMetaStoreService {
         return result;
     }
 
+    private List<HiveDataAsset> getDataAssetFromHive(Map<String, List<Table>> results) throws IOException {
+        List<HiveDataAsset> assets = new ArrayList<>();
+        dataAssetLatestTime = System.currentTimeMillis();
+        for (Map.Entry<String, List<Table>> entry : results.entrySet()) {
+            List<Table> tables = entry.getValue();
+            for (Table table : tables) {
+                assets.add(genHiveDataAsset(table));
+            }
+        }
+        return assets;
+    }
+
+    private HiveDataAsset genHiveDataAsset(Table table) throws JsonProcessingException {
+        HiveDataAsset asset = new HiveDataAsset();
+        asset.setType(DataAsset.DataAssetType.HIVE);
+        asset.setVersion("1.2");
+        asset.setDbName(table.getDbName());
+        asset.setTableName(table.getTableName());
+        Map<String, Object> sdMap = new HashMap<>();
+        sdMap.put("partitionKeys",table.getPartitionKeys());
+        sdMap.put("cols",table.getSd().getCols());
+        asset.setSdMap(sdMap);
+        asset.setRegisterFromHive(true);
+        asset.setLocation(table.getSd().getLocation());
+        asset.setId(asset.getDbName() + "_" + asset.getTableName() + "_" + String.valueOf(true));
+        return asset;
+    }
 
     private Map<String, List<Table>> getAllTables(Iterable<String> dbs) {
         Map<String, List<Table>> results = new HashMap<>();

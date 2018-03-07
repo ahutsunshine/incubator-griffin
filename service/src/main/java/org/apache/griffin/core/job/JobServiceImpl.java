@@ -64,7 +64,6 @@ public class JobServiceImpl implements JobService {
     public static final String JOB_SCHEDULE_ID = "jobScheduleId";
     public static final String GRIFFIN_JOB_ID = "griffinJobId";
     private static final int MAX_PAGE_SIZE = 1024;
-    private static final int DEFAULT_PAGE_SIZE = 10;
 
     @Autowired
     private SchedulerFactoryBean factory;
@@ -440,7 +439,6 @@ public class JobServiceImpl implements JobService {
             throw new GriffinException.NotFoundException(JOB_ID_DOES_NOT_EXIST);
         }
         size = size > MAX_PAGE_SIZE ? MAX_PAGE_SIZE : size;
-        size = size <= 0 ? DEFAULT_PAGE_SIZE : size;
         Pageable pageable = new PageRequest(page, size, Sort.Direction.DESC, "tms");
         return jobInstanceRepo.findByJobId(jobId, pageable);
     }

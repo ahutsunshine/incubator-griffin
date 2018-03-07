@@ -26,6 +26,8 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
+
 @Component
 public class CacheEvictor {
     private static final Logger LOGGER = LoggerFactory.getLogger(CacheEvictor.class);
@@ -39,7 +41,7 @@ public class CacheEvictor {
 
     @Scheduled(fixedRateString = "${cache.evict.hive.fixedRate.in.milliseconds}")
     @CacheEvict(cacheNames = "hive", allEntries = true, beforeInvocation = true)
-    public void evictHiveCache() {
+    public void evictHiveCache() throws IOException {
         LOGGER.info("Evict hive cache");
         hiveMetaStoreService.getFilterTables();
         LOGGER.info("After evict hive cache,automatically refresh hive tables cache.");

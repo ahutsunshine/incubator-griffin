@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -53,7 +54,7 @@ public class HiveMetaStoreController {
     }
 
     @RequestMapping(value = "/dbs/tables/filtration", method = RequestMethod.GET)
-    public Map<String, List<Table>> getFilterTables() {
+    public Map<String, List<Table>> getFilterTables() throws IOException {
         return hiveMetaStoreService.getFilterTables();
     }
     @RequestMapping(value = "/table", method = RequestMethod.GET)

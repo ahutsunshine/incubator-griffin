@@ -32,6 +32,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -112,7 +113,7 @@ public class HiveMetaStoreServiceImplTest {
     }
 
     @Test
-    public void testGetAllTableForNormalRun() throws TException {
+    public void testGetAllTableForNormalRun() throws TException, IOException {
         String useDbName = "default";
         String tableName = "table";
         List<String> databases = Arrays.asList(useDbName);
@@ -123,7 +124,7 @@ public class HiveMetaStoreServiceImplTest {
     }
 
     @Test
-    public void testGetAllTableForMetaException1() throws TException {
+    public void testGetAllTableForMetaException1() throws TException, IOException {
         String useDbName = "default";
         List<String> databases = Arrays.asList(useDbName);
         given(client.getAllDatabases()).willReturn(databases);
@@ -133,7 +134,7 @@ public class HiveMetaStoreServiceImplTest {
     }
 
     @Test
-    public void testGetAllTableForMetaException2() throws TException {
+    public void testGetAllTableForMetaException2() throws TException, IOException {
         given(client.getAllDatabases()).willThrow(MetaException.class);
         doNothing().when(client).reconnect();
         assertEquals(service.getFilterTables().size(), 0);

@@ -21,6 +21,7 @@ package org.apache.griffin.core.metastore.hive;
 
 import org.apache.hadoop.hive.metastore.api.Table;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -32,7 +33,7 @@ public interface HiveMetaStoreService {
 
     List<Table> getAllTable(String db);
 
-    Map<String, List<Table>> getFilterTables();
+    Map<String, List<Table>> getFilterTables() throws IOException;
 
     Table getTable(String dbName, String tableName);
 }

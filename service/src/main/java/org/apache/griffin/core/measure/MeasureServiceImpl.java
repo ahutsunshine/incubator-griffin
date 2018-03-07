@@ -21,6 +21,7 @@ package org.apache.griffin.core.measure;
 
 
 import org.apache.griffin.core.exception.GriffinException;
+import org.apache.griffin.core.measure.entity.ExternalMeasure;
 import org.apache.griffin.core.measure.entity.GriffinMeasure;
 import org.apache.griffin.core.measure.entity.Measure;
 import org.apache.griffin.core.measure.repo.ExternalMeasureRepo;
@@ -40,6 +41,8 @@ import static org.apache.griffin.core.exception.GriffinExceptionMessage.*;
 @Service
 public class MeasureServiceImpl implements MeasureService {
     private static final Logger LOGGER = LoggerFactory.getLogger(MeasureServiceImpl.class);
+    private static final String GRIFFIN_TYPE = "griffin";
+    private static final String EXTERNAL_TYPE = "external";
 
     @Autowired
     private MeasureRepo<Measure> measureRepo;
@@ -56,9 +59,9 @@ public class MeasureServiceImpl implements MeasureService {
 
     @Override
     public List<? extends Measure> getAllAliveMeasures(String type) {
-        if (type.equals("griffin")) {
+        if (type.equals(GRIFFIN_TYPE)) {
             return griffinMeasureRepo.findByDeleted(false);
-        } else if (type.equals("external")) {
+        } else if (type.equals(EXTERNAL_TYPE)) {
             return externalMeasureRepo.findByDeleted(false);
         }
         return measureRepo.findByDeleted(false);
@@ -125,8 +128,10 @@ public class MeasureServiceImpl implements MeasureService {
     private MeasureOperation getOperation(Measure measure) {
         if (measure instanceof GriffinMeasure) {
             return griffinOp;
+        } else if (measure instanceof ExternalMeasure) {
+            return externalOp;
         }
-        return externalOp;
+        throw new IllegalArgumentException("No such measure type.");
     }
 
 }

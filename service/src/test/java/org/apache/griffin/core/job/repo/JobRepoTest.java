@@ -52,36 +52,36 @@ public class JobRepoTest {
     }
 
     @Test
-    public void testCountByJobNameAndDeleted() throws Exception {
+    public void testCountByJobNameAndDeleted() {
         int count = jobRepo.countByJobNameAndDeleted("griffinJobName1", false);
         assertEquals(count, 1);
     }
 
     @Test
-    public void testFindByDeleted() throws Exception {
+    public void testFindByDeleted() {
         List<AbstractJob> jobs = jobRepo.findByDeleted(false);
         assertEquals(jobs.size(), 4);
     }
 
     @Test
-    public void findByJobNameAndDeleted() throws Exception {
+    public void findByJobNameAndDeleted() {
         List<AbstractJob> jobs = jobRepo.findByJobNameAndDeleted("griffinJobName1", false);
         assertEquals(jobs.size(), 1);
     }
 
     @Test
-    public void findByMeasureIdAndDeleted() throws Exception {
+    public void findByMeasureIdAndDeleted() {
         List<AbstractJob> jobs = jobRepo.findByMeasureIdAndDeleted(1L, false);
         assertEquals(jobs.size(), 4);
     }
 
     @Test
-    public void findByIdAndDeleted() throws Exception {
+    public void findByIdAndDeleted() {
         AbstractJob job = jobRepo.findByIdAndDeleted(1L, true);
         assert job == null;
     }
 
-    public void setEntityManager() throws Exception {
+    public void setEntityManager() {
         AbstractJob job1 = new GriffinJob(1L, "griffinJobName1", "qName1", "qGroup1", false);
         AbstractJob job2 = new GriffinJob(1L, "griffinJobName2", "qName2", "qGroup2", false);
         AbstractJob job3 = new VirtualJob("virtualJobName1", 1L, "metricName1");

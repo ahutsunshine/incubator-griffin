@@ -37,8 +37,11 @@ public class HiveMetaStoreProxy {
     @Value("${hive.metastore.uris}")
     private String uris;
 
+    @Value("${hive.metastore.need.connect}")
+    private String needConnect;
+
     /**
-     * Set attempts and interval for HiveMetastoreClient to retry.
+     * Set attempts and interval for HiveMetaStoreClient to retry.
      *
      * @hive.hmshandler.retry.attempts: The number of times to retry a HMSHandler call if there were a connection error.
      * @hive.hmshandler.retry.interval: The time between HMSHandler retry attempts on failure.
@@ -52,7 +55,10 @@ public class HiveMetaStoreProxy {
     private HiveMetaStoreClient client = null;
 
     @Bean
-    public HiveMetaStoreClient initHiveMetastoreClient() {
+    public HiveMetaStoreClient initHiveMetaStoreClient() {
+        if ("false".equals(needConnect)) {
+            return null;
+        }
         HiveConf hiveConf = new HiveConf();
         hiveConf.set("hive.metastore.local", "false");
         hiveConf.setIntVar(HiveConf.ConfVars.METASTORETHRIFTCONNECTIONRETRIES, 3);

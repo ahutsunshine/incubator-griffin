@@ -32,14 +32,17 @@ public enum GriffinExceptionMessage {
     INVALID_METRIC_VALUE_FORMAT(40008, "Metric value format is invalid"),
     INVALID_MEASURE_ID(40009, "Property 'measure.id' is invalid"),
     INVALID_CRON_EXPRESSION(40010, "Property 'cron.expression' is invalid"),
+    HIVE_DATA_ASSET_CANNOT_UPDATED(40011, "Hive data asset can not be updated"),
 
     //404, "Not Found"
     MEASURE_ID_DOES_NOT_EXIST(40401, "Measure id does not exist"),
     JOB_ID_DOES_NOT_EXIST(40402, "Job id does not exist"),
     JOB_NAME_DOES_NOT_EXIST(40403, "Job name does not exist"),
+    DATA_ASSET_DOES_NOT_FOUND(40404,"Data asset does not exist"),
 
     //409, "Conflict"
     MEASURE_NAME_ALREADY_EXIST(40901, "Measure name already exists"),
+    HIVE_DATA_ASSET_ALREADY_EXIST(40901, "Hive data asset already exists"),
     QUARTZ_JOB_ALREADY_EXIST(40902, "Quartz job already exist");
 
     private final int code;

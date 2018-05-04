@@ -112,6 +112,10 @@ public class PropertiesConfigTest {
         assertEquals(conf.get("sparkJob.name"), "test");
     }
 
+    @Test(expected = FileNotFoundException.class)
+    public void livyConfWithFileNotFoundException() throws FileNotFoundException {
+        livyNotFoundConfig.livyConf();
+    }
 
     @Test
     public void quartzConfWithLocationNotNull() throws Exception {
@@ -124,4 +128,10 @@ public class PropertiesConfigTest {
         Properties conf = noQuartzConf.quartzConf();
         assertEquals(conf.get("org.quartz.scheduler.instanceName"), "spring-boot-quartz-test");
     }
+
+    @Test(expected = FileNotFoundException.class)
+    public void quartzConfWithFileNotFoundException() throws FileNotFoundException {
+        quartzNotFoundConfig.livyConf();
+    }
+
 }
